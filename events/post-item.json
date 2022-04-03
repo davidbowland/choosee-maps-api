@@ -1,0 +1,9 @@
+{
+  "body": "{\"address\":\"90210\",\"lat\":39.1343699,\"lng\":-92.0693709,\"type\":\"restaurant\"}",
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/v1/choices"
+    }
+  }
+}

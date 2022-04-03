@@ -1,0 +1,12 @@
+{
+  "body": "{}",
+  "pathParameters": {
+    "choiceId": "abc123"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/v1/choices/abc123/advance"
+    }
+  }
+}

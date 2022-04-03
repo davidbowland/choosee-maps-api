@@ -1,0 +1,538 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Maps API for choosee project
+
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - test
+    Description: Environment for deploy
+  GoogleApiKey:
+    Type: String
+    Description: API key for Google Maps API
+
+Mappings:
+  EnvironmentMap:
+    prod:
+      certificateEdge: adce1a21-90b4-4120-8548-111215e582f0
+      certificateRegional: 5d4db894-c9fc-42ca-8f80-3c5da6c1678e
+      corsDomain: https://choosee.dbowland.com
+      domain: choosee-maps-api.dbowland.com
+      domainInternal: choosee-maps-api-internal.dbowland.com
+      logStreamFunction: log-subscriber
+      schedulerFunction: scheduler-service
+      table: choosee-maps-api
+      userPool: us-east-2_HTQbsxXaj
+      userPoolClient: gd98upqar0ovh3bktvno6dng9
+      zoneId: Z072422417XWM8PIXXSFA
+    test:
+      certificateEdge: 6a48cba7-feb9-4de5-8cbf-d383140fcdef
+      certificateRegional: 14a32175-0c26-4768-b71f-3fa611b8f5a2
+      corsDomain: https://choosee.bowland.link
+      domain: choosee-maps-api.bowland.link
+      domainInternal: choosee-maps-api-internal.bowland.link
+      logStreamFunction: log-subscriber-test
+      schedulerFunction: scheduler-service-test
+      table: choosee-maps-api-test
+      userPool: us-east-2_xqxzyIOz4
+      userPoolClient: 135qlssf7st66v1vl5dtopfeks
+      zoneId: Z01312547RGU1BYKIJXY
+
+Resources:
+  # API Gateway
+
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: v1
+      Auth:
+        ApiKeyRequired: true # sets for all methods
+        UsagePlan:
+          CreateUsagePlan: PER_API
+          Description: Usage plan for choosee-maps-api
+      Domain:
+        DomainName: !FindInMap [EnvironmentMap, !Ref Environment, domainInternal]
+        CertificateArn: !Sub
+          - 'arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/${Certificate}'
+          - Certificate: !FindInMap [EnvironmentMap, !Ref Environment, certificateEdge]
+        EndpointConfiguration: EDGE
+        Route53:
+          HostedZoneId: !FindInMap [EnvironmentMap, !Ref Environment, zoneId]
+        BasePath:
+          - /v1
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: !Sub
+                - 'https://cognito-idp.us-east-2.amazonaws.com/${UserPool}'
+                - UserPool: !FindInMap [EnvironmentMap, !Ref Environment, userPool]
+              audience:
+                - !FindInMap [EnvironmentMap, !Ref Environment, userPoolClient]
+        DefaultAuthorizer: CognitoAuthorizer
+      CorsConfiguration:
+        AllowCredentials: true
+        AllowHeaders:
+          - Authorization
+          - Content-Type
+          - X-Amz-Date
+          - X-Amz-Security-Token
+          - X-Api-Key
+        AllowMethods:
+          - DELETE
+          - GET
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+        AllowOrigins:
+          - !FindInMap [EnvironmentMap, !Ref Environment, corsDomain]
+      Domain:
+        BasePath:
+          - /v1
+        CertificateArn: !Sub
+          - 'arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/${Certificate}'
+          - Certificate: !FindInMap [EnvironmentMap, !Ref Environment, certificateRegional]
+        DomainName: !FindInMap [EnvironmentMap, !Ref Environment, domain]
+        EndpointConfiguration: REGIONAL
+      FailOnWarnings: true
+      StageName: v1
+
+  # SAM won't create two Route53 records, so the HttpApi domain name is created separately
+  HttpRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !Sub '${HttpApi.DomainName.RegionalDomainName}'
+        HostedZoneId: !Sub '${HttpApi.DomainName.RegionalHostedZoneId}'
+      HostedZoneId: !FindInMap [EnvironmentMap, !Ref Environment, zoneId]
+      Name: !FindInMap [EnvironmentMap, !Ref Environment, domain]
+      Type: A
+
+  # Lambda
+
+  DeleteItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/delete-item.deleteByIdHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 10
+      Description: choosee-maps-api delete by ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChoicesTable
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref ChoicesTable
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /choices/{choiceId}
+            Method: delete
+            Auth:
+              ApiKeyRequired: true
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  DeleteItemLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: DeleteItemFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DeleteItemFunction}
+      RetentionInDays: 30
+
+  DeleteItemLogGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref DeleteItemLogGroup
+
+  GetAllItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/get-all-items.getAllItemsHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 30
+      Description: choosee-maps-api get all items
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChoicesTable
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref ChoicesTable
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /choices
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  GetAllItemsLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: GetAllItemsFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetAllItemsFunction}
+      RetentionInDays: 30
+
+  GetAllItemsLogGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref GetAllItemsLogGroup
+
+  GetByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/get-by-id.getByIdHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 10
+      Description: choosee-maps-api get by ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChoicesTable
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref ChoicesTable
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /choices/{choiceId}
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+        Http:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /choices/{choiceId}
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  GetByIdLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: GetByIdFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetByIdFunction}
+      RetentionInDays: 30
+
+  GetByIdLogGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref GetByIdLogGroup
+
+  GetReverseGeocodeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/get-reverse-geocode.getReverseGeocodeHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 10
+      Description: choosee-maps-api reverse geocode
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          GOOGLE_API_KEY: !Ref GoogleApiKey
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /reverse-geocode
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+        Http:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /reverse-geocode
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  GetReverseGeocodeLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: GetReverseGeocodeFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetReverseGeocodeFunction}
+      RetentionInDays: 30
+
+  GetReverseGeocodeLogGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref GetReverseGeocodeLogGroup
+
+  PostItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/post-item.postItemHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 45
+      Description: choosee-maps-api post item
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChoicesTable
+      Environment:
+        Variables:
+          CHOICE_EXPIRE_HOURS: 28
+          DYNAMODB_TABLE_NAME: !Ref ChoicesTable
+          GOOGLE_API_KEY: !Ref GoogleApiKey
+          GOOGLE_IMAGE_MAX_HEIGHT: 300
+          GOOGLE_IMAGE_MAX_WIDTH: 400
+          ID_MIN_LENGTH: 3
+          ID_MAX_LENGTH: 4
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /choices
+            Method: post
+            Auth:
+              ApiKeyRequired: true
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  PostLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: PostItemFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${PostItemFunction}
+      RetentionInDays: 30
+
+  PostGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref PostLogGroup
+
+  PostAdvanceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/post-advance.postAdvanceHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 60
+      Description: choosee-maps-api post advance items
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChoicesTable
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref ChoicesTable
+          GOOGLE_API_KEY: !Ref GoogleApiKey
+          GOOGLE_IMAGE_MAX_HEIGHT: 300
+          GOOGLE_IMAGE_MAX_WIDTH: 400
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /choices/{choiceId}/advance
+            Method: post
+            Auth:
+              ApiKeyRequired: true
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  PostAdvanceLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: PostItemFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${PostAdvanceFunction}
+      RetentionInDays: 30
+
+  PostAdvanceGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref PostAdvanceLogGroup
+
+  PostPruneItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/post-start-prune.postStartPruneHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 60
+      Description: choosee-maps-api post prune items
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChoicesTable
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref ChoicesTable
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /start-prune
+            Method: post
+            Auth:
+              ApiKeyRequired: true
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  PostPruneLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: PostItemFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${PostPruneItemFunction}
+      RetentionInDays: 30
+
+  PostPruneGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref PostPruneLogGroup
+
+  # DynamoDB
+
+  ChoicesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ChoiceId
+          AttributeType: S
+        - AttributeName: Expiration
+          AttributeType: N
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: ExpirationIndex
+          KeySchema:
+            - AttributeName: Expiration
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - ChoiceId
+            ProjectionType: INCLUDE
+      KeySchema:
+        - AttributeName: ChoiceId
+          KeyType: HASH
+      TableName: !FindInMap [EnvironmentMap, !Ref Environment, table]
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+
+  # EventBridge
+
+  PruneEvent:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Prunes old choices from choices table
+      ScheduleExpression: 'cron(47 8 1/5 * ? *)'
+      State: ENABLED
+      Targets:
+        - Arn: !Sub
+            - 'arn:aws:lambda:us-east-2:${AWS::AccountId}:function:${FunctionName}'
+            - FunctionName: !FindInMap [EnvironmentMap, !Ref Environment, schedulerFunction]
+          Id: SchedulerLambda
+          InputTransformer:
+            InputPathsMap:
+              'resources': '$.resources'
+            InputTemplate: !Sub
+              - |
+                {
+                  "resources": <resources>,
+                  "request": {
+                    "url": "https://${Domain}/v1/start-prune",
+                    "method": "POST",
+                    "data": { }
+                  },
+                  "apiKey": {
+                    "id": "${ApiKey}",
+                    "region": "us-east-2"
+                  }
+                }
+              - ApiKey: !Sub '${Api.ApiKey.APIKeyId}'
+                Domain: !FindInMap [EnvironmentMap, !Ref Environment, domainInternal]

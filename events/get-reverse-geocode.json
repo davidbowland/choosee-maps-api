@@ -1,0 +1,12 @@
+{
+  "queryStringParameters": {
+    "lat": "38.897957",
+    "lng": "-77.036560"
+  },
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/v1/reverse-geocode"
+    }
+  }
+}
