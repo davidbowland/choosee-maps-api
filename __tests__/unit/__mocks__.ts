@@ -1,4 +1,4 @@
-import { Choice, NewChoice, Place } from '@types'
+import { Choice, NewChoice, Place, PlaceDetailsResponseData } from '@types'
 
 export const choiceId = 'abc123'
 
@@ -102,7 +102,8 @@ export const geocodeResult = {
   },
 }
 
-export const placeDetailsResponse = {
+export const placeDetailsResponse: PlaceDetailsResponseData = {
+  error_message: '',
   html_attributions: [],
   result: {
     formatted_address: '225 S 9th St, Columbia, MO 65201, USA',
@@ -196,7 +197,7 @@ export const placeDetailsResponse = {
     website: 'http://www.shakespeares.com/',
   },
   status: 'OK',
-}
+} as PlaceDetailsResponseData
 
 export const placeId = 'ChIJk8cmpsa33IcRbKLpDn3le4g'
 

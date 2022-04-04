@@ -21,4 +21,4 @@ export GOOGLE_API_KEY=$(aws ssm get-parameter --name google-places-api | jq -r .
 export ID_MIN_LENGTH=3
 export ID_MAX_LENGTH=4
 export USER_POOL_ID=us-east-2_xqxzyIOz4
-sam local start-api --region=us-east-2 --force-image-build --parameter-overrides "Environment=test GoogleApiKey=$GOOGLE_API_KEY" --log-file output.log
+sam local start-api --region=us-east-2 --force-image-build --parameter-overrides "Environment=test GoogleApiKey=$GOOGLE_API_KEY" --log-file local.log

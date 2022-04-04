@@ -271,6 +271,51 @@ Resources:
       FilterPattern: '[timestamp, uuid, level="ERROR", message]'
       LogGroupName: !Ref GetByIdLogGroup
 
+  GetDetailsByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/get-details-by-id.getDetailsByIdHandler
+      CodeUri: './dist'
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 10
+      Description: choosee-maps-api get place details by ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          GOOGLE_API_KEY: !Ref GoogleApiKey
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /places/{placeId}
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+
+  GetDetailsByIdLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: GetByIdFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetDetailsByIdFunction}
+      RetentionInDays: 30
+
+  GetDetailsByIdLogGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref GetDetailsByIdLogGroup
+
   GetReverseGeocodeFunction:
     Type: AWS::Serverless::Function
     Properties:

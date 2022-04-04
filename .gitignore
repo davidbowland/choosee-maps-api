@@ -4,4 +4,4 @@ dist/
 coverage/
 public/
 .DS_Store
-output.log
+local.log
