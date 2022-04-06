@@ -250,7 +250,7 @@ Resources:
             Path: /choices/{choiceId}
             Method: get
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: NONE
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
@@ -495,7 +495,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref Api
-            Path: /start-prune
+            Path: /choices/start-prune
             Method: post
             Auth:
               ApiKeyRequired: true
@@ -570,7 +570,7 @@ Resources:
                 {
                   "resources": <resources>,
                   "request": {
-                    "url": "https://${Domain}/v1/start-prune",
+                    "url": "https://${Domain}/v1/choices/start-prune",
                     "method": "POST",
                     "data": { }
                   },
