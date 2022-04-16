@@ -152,6 +152,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   DeleteItemLogGroup:
     Type: AWS::Logs::LogGroup
@@ -159,6 +160,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${DeleteItemFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   DeleteItemLogGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -199,6 +207,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   GetAllItemsLogGroup:
     Type: AWS::Logs::LogGroup
@@ -206,6 +215,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${GetAllItemsFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   GetAllItemsLogGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -254,6 +270,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   GetByIdLogGroup:
     Type: AWS::Logs::LogGroup
@@ -261,6 +278,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${GetByIdFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   GetByIdLogGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -299,6 +323,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   GetDetailsByIdLogGroup:
     Type: AWS::Logs::LogGroup
@@ -306,6 +331,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${GetDetailsByIdFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   GetDetailsByIdLogGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -352,6 +384,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   GetReverseGeocodeLogGroup:
     Type: AWS::Logs::LogGroup
@@ -359,6 +392,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${GetReverseGeocodeFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   GetReverseGeocodeLogGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -405,6 +445,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   PostLogGroup:
     Type: AWS::Logs::LogGroup
@@ -412,6 +453,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${PostItemFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   PostGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -455,6 +503,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   PostAdvanceLogGroup:
     Type: AWS::Logs::LogGroup
@@ -462,6 +511,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${PostAdvanceFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   PostAdvanceGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -502,6 +558,7 @@ Resources:
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
+        'environment': !Ref Environment
 
   PostPruneLogGroup:
     Type: AWS::Logs::LogGroup
@@ -509,6 +566,13 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${PostPruneItemFunction}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   PostPruneGroupSubscription:
     Type: AWS::Logs::SubscriptionFilter
@@ -548,6 +612,8 @@ Resources:
           Value: 'choosee-maps-api'
         - Key: 'created-for'
           Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
 
   # EventBridge
 
