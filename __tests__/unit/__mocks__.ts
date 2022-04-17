@@ -8,6 +8,7 @@ export const place: Place = {
   placeId: 'ChIJk8cmpsa33IcRbKLpDn3le4g',
   priceLevel: 2,
   rating: 4.6,
+  ratingsTotal: 2060,
   vicinity: '225 South 9th Street, Columbia',
 }
 
@@ -271,17 +272,7 @@ export const placeResponse = {
 }
 
 export const placeResult = {
-  data: [
-    {
-      name: "Shakespeare's Pizza - Downtown",
-      openHours: undefined,
-      pic: 'a-picture-stream',
-      placeId: 'ChIJk8cmpsa33IcRbKLpDn3le4g',
-      priceLevel: 2,
-      rating: 4.6,
-      vicinity: '225 South 9th Street, Columbia',
-    },
-  ],
+  data: [place],
   nextPageToken:
     'Aap_uED5ulA1bsoLWnkyaDlG1aoxuxgcx8pxnXBzkdbURX3PZwuzXgFtdbkLlJxjvqqCRa1iug_VSAiISjiApmg9yLOXQgWjMDbXuAGnVZaFARBlnfsRe5tjjVx_PKYEZv7iHNYwcvXR9eWvp8k1XMDBkj7Ja-YpLe9r8eAy1nZC-O9-1_M-lRNMNBr3YxCvWY57VXcP5F6-EPpj5vMAoHQ2e65TBGofxvsAkUX8HSvbHTKDCcYoQJUmwJQfeamM9H5stiJ137Ip98aMrEASSqCYCf9osGhRx7lbjZl4jUYKS-Y-8BejokmFWLtldff0SKuKQQrlef4E0xrdXr1jUh-uRVZTJoCq6Ki1AhiSM9qEvl0_EHYzAMbeQ9bCn0O_AlO6xstNfozKpz8SXXEiqpWaGXyaUqz-NU2facRhhZqPROSb',
 }

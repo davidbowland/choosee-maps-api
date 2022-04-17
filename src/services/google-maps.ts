@@ -85,6 +85,7 @@ export const fetchPlaceResults = async (
         placeId: place.place_id,
         priceLevel: place.price_level,
         rating: place.rating,
+        ratingsTotal: place.user_ratings_total,
         vicinity: place.vicinity,
       }))
     ),

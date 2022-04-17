@@ -11,6 +11,7 @@ export interface Place {
   placeId: string
   priceLevel: number
   rating: number
+  ratingsTotal?: number
   vicinity: string
 }
 
