@@ -16,6 +16,7 @@ export const dynamodbTableName = process.env.DYNAMODB_TABLE_NAME as string
 // Google
 
 export const googleApiKey = process.env.GOOGLE_API_KEY as string
+export const googleImageCount = parseInt(process.env.GOOGLE_IMAGE_COUNT as string, 10)
 export const googleImageMaxHeight = parseInt(process.env.GOOGLE_IMAGE_MAX_HEIGHT as string, 10)
 export const googleImageMaxWidth = parseInt(process.env.GOOGLE_IMAGE_MAX_WIDTH as string, 10)
 export const googleTimeoutMs = 2500

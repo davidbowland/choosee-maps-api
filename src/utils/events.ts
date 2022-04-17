@@ -14,8 +14,8 @@ export const formatChoice = (choice: NewChoice): NewChoice => {
   if (choice.expiration !== undefined && choice.expiration > lastExpiration) {
     throw new Error('expiration is outside acceptable range')
   }
-  if (choice.pagesPerRound !== undefined && (choice.pagesPerRound < 1 || choice.pagesPerRound > 3)) {
-    throw new Error('pagesPerRound must be 1 thru 3')
+  if (choice.pagesPerRound !== undefined && (choice.pagesPerRound < 1 || choice.pagesPerRound > 2)) {
+    throw new Error('pagesPerRound must be 1 thru 2')
   }
   if (['restaurant', 'meal_delivery', 'meal_takeaway', 'bar', 'cafe', 'night_club'].indexOf(choice.type) < 0) {
     throw new Error('type must be one of "restaurant", "meal_delivery", "meal_takeaway", "bar", "cafe", "night_club"')

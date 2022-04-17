@@ -418,7 +418,7 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 45
+      Timeout: 60
       Description: choosee-maps-api post item
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -429,6 +429,7 @@ Resources:
           CHOICE_EXPIRE_HOURS: 28
           DYNAMODB_TABLE_NAME: !Ref ChoicesTable
           GOOGLE_API_KEY: !Ref GoogleApiKey
+          GOOGLE_IMAGE_COUNT: 5
           GOOGLE_IMAGE_MAX_HEIGHT: 300
           GOOGLE_IMAGE_MAX_WIDTH: 400
           ID_MIN_LENGTH: 3
@@ -489,6 +490,7 @@ Resources:
         Variables:
           DYNAMODB_TABLE_NAME: !Ref ChoicesTable
           GOOGLE_API_KEY: !Ref GoogleApiKey
+          GOOGLE_IMAGE_COUNT: 5
           GOOGLE_IMAGE_MAX_HEIGHT: 300
           GOOGLE_IMAGE_MAX_WIDTH: 400
       Events:

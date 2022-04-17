@@ -14,7 +14,7 @@ describe('get-details-by-id', () => {
   const event = eventJson as unknown as APIGatewayProxyEventV2
 
   beforeAll(() => {
-    mocked(googleMaps).fetchPlaceDetails.mockResolvedValue({ data: placeDetailsResponse } as any)
+    mocked(googleMaps).fetchPlaceDetails.mockResolvedValue(placeDetailsResponse)
   })
 
   describe('getDetailsByIdHandler', () => {
@@ -28,7 +28,7 @@ describe('get-details-by-id', () => {
       const result = await getDetailsByIdHandler(event)
       expect(result).toEqual({
         ...status.OK,
-        body: JSON.stringify(placeDetailsResponse.result),
+        body: JSON.stringify(placeDetailsResponse.data.result),
       })
     })
   })

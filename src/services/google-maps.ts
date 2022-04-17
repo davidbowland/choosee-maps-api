@@ -1,9 +1,17 @@
-import { AddressType, Client, PlacesNearbyRanking, ReverseGeocodeResponse } from '@googlemaps/google-maps-services-js'
+import {
+  AddressType,
+  Client,
+  Place,
+  PlacesNearbyRanking,
+  ReverseGeocodeResponse,
+} from '@googlemaps/google-maps-services-js'
 
-import { GeocodeResponse, LatLng, PlaceDetailsResponse, PlaceResponse } from '../types'
-import { googleApiKey, googleImageMaxHeight, googleImageMaxWidth, googleTimeoutMs } from '../config'
+import { GeocodeResponse, LatLng, PlaceDetails, PlaceDetailsResponse, PlaceResponse } from '../types'
+import { googleApiKey, googleImageCount, googleImageMaxHeight, googleImageMaxWidth, googleTimeoutMs } from '../config'
 
 const client = new Client()
+
+/* Geocoding */
 
 export const fetchAddressFromGeocode = (lat: number, lng: number): Promise<ReverseGeocodeResponse> =>
   client.reverseGeocode({
@@ -27,6 +35,8 @@ export const fetchGeocodeResults = (address: string): Promise<GeocodeResponse> =
     timeout: googleTimeoutMs,
   })
 
+/* Place photos */
+
 export const fetchPicture = (photoreference: string): Promise<string> =>
   client
     .placePhoto({
@@ -41,6 +51,8 @@ export const fetchPicture = (photoreference: string): Promise<string> =>
     })
     .then((response) => response.data.responseUrl)
 
+/* Place details */
+
 export const fetchPlaceDetails = (placeId: string): Promise<PlaceDetailsResponse> =>
   client.placeDetails({
     params: {
@@ -49,6 +61,7 @@ export const fetchPlaceDetails = (placeId: string): Promise<PlaceDetailsResponse
         'formatted_phone_number',
         'international_phone_number',
         'name',
+        'photos',
         'opening_hours',
         'website',
       ],
@@ -57,6 +70,38 @@ export const fetchPlaceDetails = (placeId: string): Promise<PlaceDetailsResponse
     },
     timeout: googleTimeoutMs,
   })
+
+/* Nearby search */
+
+const fetchPhotosFromDetails = (details: PlaceDetailsResponse): Promise<string[]> =>
+  Promise.all(
+    details.data.result.photos?.slice(0, googleImageCount).map((value) => fetchPicture(value.photo_reference)) ?? []
+  )
+
+const compilePlaceResult = async (place: Place): Promise<PlaceDetails> => {
+  const details = await fetchPlaceDetails(place.place_id)
+
+  return {
+    formattedAddress: details.data.result.formatted_address,
+    formattedPhoneNumber: details.data.result.formatted_phone_number,
+    internationalPhoneNumber: details.data.result.international_phone_number,
+    name: place.name,
+    openHours: details.data.result.opening_hours?.weekday_text,
+    photos: await fetchPhotosFromDetails(details),
+    placeId: place.place_id,
+    priceLevel: place.price_level,
+    rating: place.rating,
+    ratingsTotal: place.user_ratings_total,
+    vicinity: place.vicinity,
+    website: details.data.result.website,
+  }
+}
+
+const processPlaceResults = async (places: Place[]): Promise<PlaceDetails[]> => {
+  const [current, ...next] = places
+  const result = await compilePlaceResult(current)
+  return next.length === 0 ? [result] : [result, ...(await processPlaceResults(next))]
+}
 
 export const fetchPlaceResults = async (
   location: LatLng,
@@ -77,18 +122,7 @@ export const fetchPlaceResults = async (
     timeout: googleTimeoutMs,
   })
   const result = {
-    data: await Promise.all(
-      response.data.results.map(async (place) => ({
-        name: place.name,
-        openHours: place.opening_hours?.weekday_text,
-        photos: await Promise.all(place.photos?.map((value) => fetchPicture(value.photo_reference)) ?? []),
-        placeId: place.place_id,
-        priceLevel: place.price_level,
-        rating: place.rating,
-        ratingsTotal: place.user_ratings_total,
-        vicinity: place.vicinity,
-      }))
-    ),
+    data: await processPlaceResults(response.data.results),
     nextPageToken: response.data.next_page_token,
   }
   if (pages < 2 || !result.nextPageToken) {

@@ -9,6 +9,7 @@ process.env.DYNAMODB_TABLE_NAME = 'choosee-table'
 // Google
 
 process.env.GOOGLE_API_KEY = '98uhjgr4rgh0ijhgthjk'
+process.env.GOOGLE_IMAGE_COUNT = '5'
 process.env.GOOGLE_IMAGE_MAX_HEIGHT = '300'
 process.env.GOOGLE_IMAGE_MAX_WIDTH = '400'
 

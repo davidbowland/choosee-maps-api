@@ -37,6 +37,13 @@ jest.mock('@googlemaps/google-maps-services-js', () => ({
 }))
 
 describe('queue', () => {
+  const picture = 'a-picture-stream'
+
+  beforeAll(() => {
+    mockPlaceDetails.mockResolvedValue(placeDetailsResponse)
+    mockPlacePhoto.mockResolvedValue({ data: { responseUrl: picture } })
+  })
+
   describe('fetchAddressFromGeocode', () => {
     const lat = 38.897957
     const lng = -77.03656
@@ -91,12 +98,7 @@ describe('queue', () => {
   })
 
   describe('fetchPicture', () => {
-    const picture = 'a-picture-stream'
     const photoreference = '76tghbde56yuju'
-
-    beforeAll(() => {
-      mockPlacePhoto.mockResolvedValue({ data: { responseUrl: picture } })
-    })
 
     test('expect photoreference passed to placePhoto', async () => {
       await fetchPicture(photoreference)
@@ -119,10 +121,6 @@ describe('queue', () => {
   })
 
   describe('fetchPlaceDetails', () => {
-    beforeAll(() => {
-      mockPlaceDetails.mockResolvedValue(placeDetailsResponse)
-    })
-
     test('expect parameters passed to placesNearby', async () => {
       await fetchPlaceDetails(placeId)
       expect(mockPlaceDetails).toHaveBeenCalledWith({
@@ -132,6 +130,7 @@ describe('queue', () => {
             'formatted_phone_number',
             'international_phone_number',
             'name',
+            'photos',
             'opening_hours',
             'website',
           ],
@@ -206,10 +205,14 @@ describe('queue', () => {
     })
 
     test('expect undefined for missing values', async () => {
-      const place = { ...placeResponse.data.results[0], opening_hours: undefined, photos: undefined }
-      mockPlacesNearby.mockResolvedValueOnce({ ...placeResponse, data: { results: [place] } })
+      const placeDetailsMissingValues = {
+        data: { result: { ...placeDetailsResponse.data.result, opening_hours: undefined, photos: undefined } },
+      }
+      mockPlaceDetails.mockResolvedValueOnce(placeDetailsMissingValues)
+      const placeResponseMissingValues = { ...placeResponse, data: { results: [placeResponse.data.results[0]] } }
+      mockPlacesNearby.mockResolvedValueOnce(placeResponseMissingValues)
       const result = await fetchPlaceResults(location, type, openNow, pages)
-      expect(result).toEqual({ data: [{ ...placeResult.data[0], photos: [] }] })
+      expect(result).toEqual({ data: [{ ...placeResult.data[0], openHours: undefined, photos: [] }] })
     })
   })
 })
