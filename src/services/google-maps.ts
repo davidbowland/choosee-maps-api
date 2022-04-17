@@ -81,7 +81,7 @@ export const fetchPlaceResults = async (
       response.data.results.map(async (place) => ({
         name: place.name,
         openHours: place.opening_hours?.weekday_text,
-        pic: place.photos?.[0] && (await fetchPicture(place.photos[0].photo_reference)),
+        photos: await Promise.all(place.photos?.map((value) => fetchPicture(value.photo_reference)) ?? []),
         placeId: place.place_id,
         priceLevel: place.price_level,
         rating: place.rating,

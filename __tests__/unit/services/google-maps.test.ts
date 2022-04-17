@@ -209,7 +209,7 @@ describe('queue', () => {
       const place = { ...placeResponse.data.results[0], opening_hours: undefined, photos: undefined }
       mockPlacesNearby.mockResolvedValueOnce({ ...placeResponse, data: { results: [place] } })
       const result = await fetchPlaceResults(location, type, openNow, pages)
-      expect(result).toEqual({ data: [{ ...placeResult.data[0], pic: undefined }] })
+      expect(result).toEqual({ data: [{ ...placeResult.data[0], photos: [] }] })
     })
   })
 })

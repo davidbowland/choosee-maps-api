@@ -4,7 +4,7 @@ export const choiceId = 'abc123'
 
 export const place: Place = {
   name: "Shakespeare's Pizza - Downtown",
-  pic: 'a-picture-stream',
+  photos: ['a-picture-stream'],
   placeId: 'ChIJk8cmpsa33IcRbKLpDn3le4g',
   priceLevel: 2,
   rating: 4.6,

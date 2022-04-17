@@ -7,7 +7,7 @@ export type PlaceType = 'restaurant' | 'meal_delivery' | 'meal_takeaway' | 'bar'
 export interface Place {
   name: string
   openHours?: string[]
-  pic?: string
+  photos: string[]
   placeId: string
   priceLevel: number
   rating: number
