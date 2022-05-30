@@ -31,6 +31,10 @@ jest.mock('@googlemaps/google-maps-services-js', () => ({
     placesNearby: (...args) => mockPlacesNearby(...args),
     reverseGeocode: (...args) => mockReverseGeocode(...args),
   }),
+  PlaceType1: {
+    convenience_store: 'convenience_store',
+    gas_station: 'gas_station',
+  },
   PlacesNearbyRanking: {
     distance: 'distance',
   },
@@ -188,6 +192,72 @@ describe('queue', () => {
     test('expect results returned', async () => {
       const result = await fetchPlaceResults(location, type, openNow, pages)
       expect(result).toEqual(placeResult)
+    })
+
+    test.each(['gas_station', 'convenience_store'])('expect %s filtered from results', async (badType) => {
+      const badPlace = { ...placeResponse.data.results[0], types: [badType] }
+      mockPlacesNearby.mockResolvedValueOnce({
+        ...placeResponse,
+        data: { results: [badPlace, placeResponse.data.results[1]] },
+      })
+      const result = await fetchPlaceResults(location, type, openNow, pages)
+      expect(result.data).toEqual([
+        {
+          formattedAddress: '225 S 9th St, Columbia, MO 65201, USA',
+          formattedPhoneNumber: '(573) 449-2454',
+          internationalPhoneNumber: '+1 573-449-2454',
+          name: 'China Moon Restaurant',
+          openHours: [
+            'Monday: 11:00 AM – 10:00 PM',
+            'Tuesday: 11:00 AM – 10:00 PM',
+            'Wednesday: 11:00 AM – 10:00 PM',
+            'Thursday: 11:00 AM – 10:00 PM',
+            'Friday: 11:00 AM – 11:00 PM',
+            'Saturday: 11:00 AM – 11:00 PM',
+            'Sunday: 11:00 AM – 10:00 PM',
+          ],
+          photos: ['a-picture-stream'],
+          placeId: 'ChIJiTfsP_vJ3IcRs74EWg563vY',
+          priceLevel: 1,
+          rating: 4.2,
+          ratingsTotal: 296,
+          vicinity: '3890 Rangeline Street, Columbia',
+          website: 'http://www.shakespeares.com/',
+        },
+      ])
+    })
+
+    test('expect last gas_station filtered from results', async () => {
+      const badPlace = { ...placeResponse.data.results[1], types: ['gas_station'] }
+      mockPlacesNearby.mockResolvedValueOnce({
+        ...placeResponse,
+        data: { results: [placeResponse.data.results[0], badPlace] },
+      })
+      const result = await fetchPlaceResults(location, type, openNow, pages)
+      expect(result.data).toEqual([
+        {
+          formattedAddress: '225 S 9th St, Columbia, MO 65201, USA',
+          formattedPhoneNumber: '(573) 449-2454',
+          internationalPhoneNumber: '+1 573-449-2454',
+          name: "Shakespeare's Pizza - Downtown",
+          openHours: [
+            'Monday: 11:00 AM – 10:00 PM',
+            'Tuesday: 11:00 AM – 10:00 PM',
+            'Wednesday: 11:00 AM – 10:00 PM',
+            'Thursday: 11:00 AM – 10:00 PM',
+            'Friday: 11:00 AM – 11:00 PM',
+            'Saturday: 11:00 AM – 11:00 PM',
+            'Sunday: 11:00 AM – 10:00 PM',
+          ],
+          photos: ['a-picture-stream'],
+          placeId: 'ChIJk8cmpsa33IcRbKLpDn3le4g',
+          priceLevel: 2,
+          rating: 4.6,
+          ratingsTotal: 2060,
+          vicinity: '225 South 9th Street, Columbia',
+          website: 'http://www.shakespeares.com/',
+        },
+      ])
     })
 
     test('expect multiple pages of results returned', async () => {

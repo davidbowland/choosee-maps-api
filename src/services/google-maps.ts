@@ -2,12 +2,15 @@ import {
   AddressType,
   Client,
   Place,
+  PlaceType1,
   PlacesNearbyRanking,
   ReverseGeocodeResponse,
 } from '@googlemaps/google-maps-services-js'
 
 import { GeocodeResponse, LatLng, PlaceDetails, PlaceDetailsResponse, PlaceResponse } from '../types'
 import { googleApiKey, googleImageCount, googleImageMaxHeight, googleImageMaxWidth, googleTimeoutMs } from '../config'
+
+const HIDDEN_TYPES = [PlaceType1.gas_station, PlaceType1.convenience_store]
 
 const client = new Client()
 
@@ -99,8 +102,11 @@ const compilePlaceResult = async (place: Place): Promise<PlaceDetails> => {
 
 const processPlaceResults = async (places: Place[]): Promise<PlaceDetails[]> => {
   const [current, ...next] = places
-  const result = await compilePlaceResult(current)
-  return next.length === 0 ? [result] : [result, ...(await processPlaceResults(next))]
+  if (HIDDEN_TYPES.every((badType) => current.types.indexOf(badType) === -1)) {
+    const result = await compilePlaceResult(current)
+    return next.length === 0 ? [result] : [result, ...(await processPlaceResults(next))]
+  }
+  return next.length === 0 ? [] : await processPlaceResults(next)
 }
 
 export const fetchPlaceResults = async (
