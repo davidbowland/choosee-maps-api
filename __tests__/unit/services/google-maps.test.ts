@@ -13,6 +13,7 @@ import {
   placeResult,
   reverseGeocodeResult,
 } from '../__mocks__'
+import { PlaceType1 } from '@googlemaps/google-maps-services-js'
 
 const mockGeocode = jest.fn()
 const mockPlaceDetails = jest.fn()
@@ -194,7 +195,16 @@ describe('queue', () => {
       expect(result).toEqual(placeResult)
     })
 
-    test.each(['gas_station', 'convenience_store'])('expect %s filtered from results', async (badType) => {
+    test.each([
+      PlaceType1.airport,
+      PlaceType1.bowling_alley,
+      PlaceType1.casino,
+      PlaceType1.convenience_store,
+      PlaceType1.funeral_home,
+      PlaceType1.gas_station,
+      PlaceType1.gym,
+      PlaceType1.zoo,
+    ])('expect %s filtered from results', async (badType) => {
       const badPlace = { ...placeResponse.data.results[0], types: [badType] }
       mockPlacesNearby.mockResolvedValueOnce({
         ...placeResponse,

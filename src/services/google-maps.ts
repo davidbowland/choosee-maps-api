@@ -10,7 +10,16 @@ import {
 import { GeocodeResponse, LatLng, PlaceDetails, PlaceDetailsResponse, PlaceResponse } from '../types'
 import { googleApiKey, googleImageCount, googleImageMaxHeight, googleImageMaxWidth, googleTimeoutMs } from '../config'
 
-const HIDDEN_TYPES = [PlaceType1.gas_station, PlaceType1.convenience_store]
+const HIDDEN_TYPES = [
+  PlaceType1.airport,
+  PlaceType1.bowling_alley,
+  PlaceType1.casino,
+  PlaceType1.convenience_store,
+  PlaceType1.funeral_home,
+  PlaceType1.gas_station,
+  PlaceType1.gym,
+  PlaceType1.zoo,
+]
 
 const client = new Client()
 
