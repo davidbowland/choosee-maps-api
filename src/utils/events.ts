@@ -17,6 +17,12 @@ export const formatChoice = (choice: NewChoice): NewChoice => {
   if (choice.pagesPerRound !== undefined && (choice.pagesPerRound < 1 || choice.pagesPerRound > 2)) {
     throw new Error('pagesPerRound must be 1 thru 2')
   }
+  if (choice.rankBy !== 'distance' && choice.rankBy !== 'prominence') {
+    throw new Error('rankBy must be "distance" or "prominence"')
+  }
+  if (choice.rankBy === 'prominence' && (choice.radius === undefined || choice.radius < 1 || choice.radius > 50_000)) {
+    throw new Error('radius must be 1 thru 50,000 when rankBy is "prominence"')
+  }
   if (['restaurant', 'meal_delivery', 'meal_takeaway', 'bar', 'cafe', 'night_club'].indexOf(choice.type) < 0) {
     throw new Error('type must be one of "restaurant", "meal_delivery", "meal_takeaway", "bar", "cafe", "night_club"')
   }
@@ -27,6 +33,8 @@ export const formatChoice = (choice: NewChoice): NewChoice => {
     lng: choice.lng,
     openNow: choice.openNow ?? false,
     pagesPerRound: choice.pagesPerRound ?? 1,
+    radius: choice.radius,
+    rankBy: choice.rankBy,
     type: choice.type,
   }
 }

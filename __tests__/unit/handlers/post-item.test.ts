@@ -27,6 +27,8 @@ describe('post-item', () => {
       expiration: 1728547851,
       openNow: true,
       pagesPerRound: 2,
+      radius: 50_000,
+      rankBy: 'prominence',
       type: 'restaurant',
     })
     mocked(googleMaps).fetchGeocodeResults.mockResolvedValue(geocodeResult as unknown as GeocodeResponse)
@@ -57,6 +59,8 @@ describe('post-item', () => {
         { lat: 39.1343699, lng: -92.0693709 },
         'restaurant',
         undefined,
+        undefined,
+        'distance',
         undefined
       )
     })
@@ -95,7 +99,9 @@ describe('post-item', () => {
         { lat: 39.0013395, lng: -92.3128326 },
         'restaurant',
         true,
-        2
+        2,
+        'prominence',
+        50_000
       )
       expect(JSON.parse(result.body)).toEqual({
         ...choice,

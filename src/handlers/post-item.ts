@@ -33,7 +33,9 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
       geocodedAddress.latLng,
       newChoice.type,
       newChoice.openNow,
-      newChoice.pagesPerRound
+      newChoice.pagesPerRound,
+      newChoice.rankBy,
+      newChoice.radius
     )
     log('Google API results', { geocodedAddress, places })
 
@@ -46,6 +48,8 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
       nextPageToken: places.nextPageToken,
       openNow: newChoice.openNow,
       pagesPerRound: newChoice.pagesPerRound,
+      radius: newChoice.radius,
+      rankBy: newChoice.rankBy,
       type: newChoice.type,
     }
     log('Creating choices', { choice, choiceId })

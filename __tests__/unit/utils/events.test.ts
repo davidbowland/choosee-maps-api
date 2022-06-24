@@ -20,6 +20,16 @@ describe('events', () => {
       expect(() => formatChoice(invalidSession)).toThrow()
     })
 
+    test.each([undefined, 'fnord'])('expect error on invalid rankBy (%s)', (rankBy) => {
+      const invalidSession = { ...newChoice, rankBy } as NewChoice
+      expect(() => formatChoice(invalidSession)).toThrow()
+    })
+
+    test.each([undefined, 0, 50_001])('expect error when ranked by prominence and bad radius', (radius) => {
+      const invalidSession = { ...newChoice, radius, rankBy: 'prominence' } as NewChoice
+      expect(() => formatChoice(invalidSession)).toThrow()
+    })
+
     test.each([undefined, 'fnord'])('expect error on invalid type (%s)', (type) => {
       const invalidSession = { ...newChoice, type } as NewChoice
       expect(() => formatChoice(invalidSession)).toThrow()
@@ -56,11 +66,11 @@ describe('events', () => {
     })
 
     test('expect session to be formatted', async () => {
-      const tempEmail = {
+      const tempChoice = {
         ...newChoice,
         foo: 'bar',
       }
-      const tempEvent = { ...event, body: JSON.stringify(tempEmail) } as unknown as APIGatewayProxyEventV2
+      const tempEvent = { ...event, body: JSON.stringify(tempChoice) } as unknown as APIGatewayProxyEventV2
       const result = await extractNewChoiceFromEvent(tempEvent)
       expect(result).toEqual(expect.objectContaining(newChoice))
     })

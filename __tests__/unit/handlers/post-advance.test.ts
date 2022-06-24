@@ -41,6 +41,8 @@ describe('post-advance', () => {
         'restaurant',
         true,
         2,
+        'prominence',
+        50_000,
         choice.nextPageToken
       )
     })

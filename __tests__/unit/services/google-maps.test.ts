@@ -38,6 +38,7 @@ jest.mock('@googlemaps/google-maps-services-js', () => ({
   },
   PlacesNearbyRanking: {
     distance: 'distance',
+    prominence: 'prominence',
   },
 }))
 
@@ -156,6 +157,8 @@ describe('queue', () => {
     const location = { lat: 39, lng: -92 }
     const openNow = true
     const pages = 1
+    const radius = 45_000
+    const rankBy = 'distance'
     const type = 'restaurant'
 
     beforeAll(() => {
@@ -163,7 +166,7 @@ describe('queue', () => {
     })
 
     test('expect parameters passed to placesNearby', async () => {
-      await fetchPlaceResults(location, type, openNow, pages)
+      await fetchPlaceResults(location, type, openNow, pages, rankBy)
       expect(mockPlacesNearby).toHaveBeenCalledWith({
         params: {
           key: '98uhjgr4rgh0ijhgthjk',
@@ -177,7 +180,7 @@ describe('queue', () => {
     })
 
     test('expect undefined used instead of false for opennow', async () => {
-      await fetchPlaceResults(location, type, false, pages)
+      await fetchPlaceResults(location, type, false, pages, rankBy)
       expect(mockPlacesNearby).toHaveBeenCalledWith({
         params: {
           key: '98uhjgr4rgh0ijhgthjk',
@@ -190,8 +193,23 @@ describe('queue', () => {
       })
     })
 
+    test('expect radius passed when rank by prominence', async () => {
+      await fetchPlaceResults(location, type, false, pages, 'prominence', radius)
+      expect(mockPlacesNearby).toHaveBeenCalledWith({
+        params: {
+          key: '98uhjgr4rgh0ijhgthjk',
+          location,
+          opennow: undefined,
+          radius,
+          rankby: 'prominence',
+          type,
+        },
+        timeout: 2500,
+      })
+    })
+
     test('expect results returned', async () => {
-      const result = await fetchPlaceResults(location, type, openNow, pages)
+      const result = await fetchPlaceResults(location, type, openNow, pages, rankBy)
       expect(result).toEqual(placeResult)
     })
 
@@ -210,7 +228,7 @@ describe('queue', () => {
         ...placeResponse,
         data: { results: [badPlace, placeResponse.data.results[1]] },
       })
-      const result = await fetchPlaceResults(location, type, openNow, pages)
+      const result = await fetchPlaceResults(location, type, openNow, pages, rankBy)
       expect(result.data).toEqual([
         {
           formattedAddress: '225 S 9th St, Columbia, MO 65201, USA',
@@ -243,7 +261,7 @@ describe('queue', () => {
         ...placeResponse,
         data: { results: [placeResponse.data.results[0], badPlace] },
       })
-      const result = await fetchPlaceResults(location, type, openNow, pages)
+      const result = await fetchPlaceResults(location, type, openNow, pages, rankBy)
       expect(result.data).toEqual([
         {
           formattedAddress: '225 S 9th St, Columbia, MO 65201, USA',
@@ -271,7 +289,7 @@ describe('queue', () => {
     })
 
     test('expect multiple pages of results returned', async () => {
-      const result = await fetchPlaceResults(location, type, openNow, 2)
+      const result = await fetchPlaceResults(location, type, openNow, 2, rankBy)
       expect(result).toEqual({
         data: [...placeResult.data, ...placeResult.data],
         nextPageToken: placeResult.nextPageToken,
@@ -280,7 +298,7 @@ describe('queue', () => {
 
     test('expect max pages when multiple pages requested', async () => {
       mockPlacesNearby.mockResolvedValueOnce({ data: { ...placeResponse.data, next_page_token: undefined } })
-      const result = await fetchPlaceResults(location, type, openNow, 2)
+      const result = await fetchPlaceResults(location, type, openNow, 2, rankBy)
       expect(result).toEqual({ data: placeResult.data, nextPageToken: undefined })
     })
 
@@ -291,7 +309,7 @@ describe('queue', () => {
       mockPlaceDetails.mockResolvedValueOnce(placeDetailsMissingValues)
       const placeResponseMissingValues = { ...placeResponse, data: { results: [placeResponse.data.results[0]] } }
       mockPlacesNearby.mockResolvedValueOnce(placeResponseMissingValues)
-      const result = await fetchPlaceResults(location, type, openNow, pages)
+      const result = await fetchPlaceResults(location, type, openNow, pages, rankBy)
       expect(result).toEqual({ data: [{ ...placeResult.data[0], openHours: undefined, photos: [] }] })
     })
   })
