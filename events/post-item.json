@@ -1,5 +1,5 @@
 {
-  "body": "{\"address\":\"90210\",\"lat\":39.1343699,\"lng\":-92.0693709,\"rankBy\":\"distance\",\"type\":\"restaurant\"}",
+  "body": "{\"address\":\"90210\",\"lat\":39.1343699,\"lng\":-92.0693709,\"maxPrice\":4,\"minPrice\":2,\"rankBy\":\"distance\",\"type\":\"restaurant\"}",
   "requestContext": {
     "http": {
       "method": "POST",

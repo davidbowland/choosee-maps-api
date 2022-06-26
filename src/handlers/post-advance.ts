@@ -21,6 +21,8 @@ export const postAdvanceHandler = async (event: APIGatewayProxyEventV2): Promise
       choice.pagesPerRound,
       choice.rankBy,
       choice.radius,
+      choice.maxPrice,
+      choice.minPrice,
       choice.nextPageToken
     )
     const updatedChoice = { ...choice, choices: places.data, nextPageToken: places.nextPageToken }

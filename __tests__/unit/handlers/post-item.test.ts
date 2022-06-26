@@ -61,7 +61,9 @@ describe('post-item', () => {
         undefined,
         undefined,
         'distance',
-        undefined
+        undefined,
+        4,
+        2
       )
     })
 
@@ -101,7 +103,9 @@ describe('post-item', () => {
         true,
         2,
         'prominence',
-        50_000
+        50_000,
+        4,
+        2
       )
       expect(JSON.parse(result.body)).toEqual({
         ...choice,

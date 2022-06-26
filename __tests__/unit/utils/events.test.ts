@@ -15,6 +15,21 @@ describe('events', () => {
       expect(() => formatChoice(tooLateExpirationChoice)).toThrow()
     })
 
+    test.each([-1, 5])('expect error on invalid maxPrice (%s)', (maxPrice) => {
+      const invalidSession = { ...newChoice, maxPrice } as NewChoice
+      expect(() => formatChoice(invalidSession)).toThrow()
+    })
+
+    test.each([-1, 5])('expect error on invalid minPrice (%s)', (minPrice) => {
+      const invalidSession = { ...newChoice, minPrice } as NewChoice
+      expect(() => formatChoice(invalidSession)).toThrow()
+    })
+
+    test('expect error when maxPrice less than minPrice', () => {
+      const invalidSession = { ...newChoice, maxPrice: 0, minPrice: 4 } as NewChoice
+      expect(() => formatChoice(invalidSession)).toThrow()
+    })
+
     test.each([0, 4])('expect error on invalid pagesPerRound (%s)', (pagesPerRound) => {
       const invalidSession = { ...newChoice, pagesPerRound } as NewChoice
       expect(() => formatChoice(invalidSession)).toThrow()
