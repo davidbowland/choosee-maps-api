@@ -125,12 +125,16 @@ export const fetchPlaceResults = async (
   pages: number,
   rankBy: string,
   radius?: number,
+  maxPrice?: number,
+  minPrice?: number,
   nextPageToken?: string
 ): Promise<PlaceResponse> => {
   const response = await client.placesNearby({
     params: {
       key: googleApiKey,
       location,
+      maxprice: maxPrice,
+      minprice: minPrice,
       opennow: openNow || undefined,
       pagetoken: nextPageToken,
       radius,
@@ -148,6 +152,16 @@ export const fetchPlaceResults = async (
   }
 
   await new Promise((resolve) => setTimeout(resolve, 1000))
-  const otherPages = await fetchPlaceResults(location, type, openNow, pages - 1, rankBy, radius, result.nextPageToken)
+  const otherPages = await fetchPlaceResults(
+    location,
+    type,
+    openNow,
+    pages - 1,
+    rankBy,
+    radius,
+    maxPrice,
+    minPrice,
+    result.nextPageToken
+  )
   return { data: [...result.data, ...otherPages.data], nextPageToken: otherPages.nextPageToken }
 }

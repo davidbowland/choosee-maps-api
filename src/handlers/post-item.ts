@@ -35,9 +35,11 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
       newChoice.openNow,
       newChoice.pagesPerRound,
       newChoice.rankBy,
-      newChoice.radius
+      newChoice.radius,
+      newChoice.maxPrice,
+      newChoice.minPrice
     )
-    log('Google API results', { geocodedAddress, places })
+    log('Google API results', JSON.stringify({ geocodedAddress, places }))
 
     const choiceId = await getNextId()
     const choice: Choice = {
@@ -45,6 +47,8 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
       choices: places.data,
       expiration: newChoice.expiration,
       latLng: geocodedAddress.latLng,
+      maxPrice: newChoice.maxPrice,
+      minPrice: newChoice.minPrice,
       nextPageToken: places.nextPageToken,
       openNow: newChoice.openNow,
       pagesPerRound: newChoice.pagesPerRound,
@@ -52,7 +56,7 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
       rankBy: newChoice.rankBy,
       type: newChoice.type,
     }
-    log('Creating choices', { choice, choiceId })
+    log('Creating choices', JSON.stringify({ choice, choiceId }))
     await setDataById(choiceId, choice)
     return {
       ...status.CREATED,

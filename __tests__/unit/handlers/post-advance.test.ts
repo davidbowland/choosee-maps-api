@@ -43,6 +43,8 @@ describe('post-advance', () => {
         2,
         'prominence',
         50_000,
+        4,
+        2,
         choice.nextPageToken
       )
     })

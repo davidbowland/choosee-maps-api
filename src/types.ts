@@ -31,6 +31,8 @@ export interface Choice {
   choices: PlaceDetails[]
   expiration: number
   latLng: LatLng
+  maxPrice: number
+  minPrice: number
   nextPageToken: string
   openNow: boolean
   pagesPerRound: number
@@ -49,6 +51,8 @@ export interface NewChoice {
   expiration?: number
   lat?: number
   lng?: number
+  maxPrice?: number
+  minPrice?: number
   openNow?: boolean
   pagesPerRound?: number
   radius?: number

@@ -14,6 +14,15 @@ export const formatChoice = (choice: NewChoice): NewChoice => {
   if (choice.expiration !== undefined && choice.expiration > lastExpiration) {
     throw new Error('expiration is outside acceptable range')
   }
+  if (choice.maxPrice !== undefined && (choice.maxPrice < 0 || choice.maxPrice > 4)) {
+    throw new Error('maxPrice must be 0 thru 4')
+  }
+  if (choice.minPrice !== undefined && (choice.minPrice < 0 || choice.minPrice > 4)) {
+    throw new Error('minPrice must be 0 thru 4')
+  }
+  if (choice.maxPrice !== undefined && choice.minPrice !== undefined && choice.maxPrice < choice.minPrice) {
+    throw new Error('minPrice must be less or equal to than maxPrice')
+  }
   if (choice.pagesPerRound !== undefined && (choice.pagesPerRound < 1 || choice.pagesPerRound > 2)) {
     throw new Error('pagesPerRound must be 1 thru 2')
   }
@@ -31,6 +40,8 @@ export const formatChoice = (choice: NewChoice): NewChoice => {
     expiration: choice.expiration ?? lastExpiration,
     lat: choice.lat,
     lng: choice.lng,
+    maxPrice: choice.maxPrice,
+    minPrice: choice.minPrice,
     openNow: choice.openNow ?? false,
     pagesPerRound: choice.pagesPerRound ?? 1,
     radius: choice.radius,
