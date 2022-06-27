@@ -1,6 +1,6 @@
 {
   "name": "choosee-maps-api",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Lambda choosee maps API",
   "author": "David Bowland",
   "engines": {
