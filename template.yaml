@@ -131,7 +131,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 10
       Description: choosee-maps-api delete by ID
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -153,6 +152,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 10
+      Tracing: Active
 
   DeleteItemLogGroup:
     Type: AWS::Logs::LogGroup
@@ -186,7 +187,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 30
       Description: choosee-maps-api get all items
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -208,6 +208,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 30
+      Tracing: Active
 
   GetAllItemsLogGroup:
     Type: AWS::Logs::LogGroup
@@ -241,7 +243,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 10
       Description: choosee-maps-api get by ID
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -271,6 +272,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 10
+      Tracing: Active
 
   GetByIdLogGroup:
     Type: AWS::Logs::LogGroup
@@ -304,7 +307,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 10
       Description: choosee-maps-api get place details by ID
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -324,6 +326,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 10
+      Tracing: Active
 
   GetDetailsByIdLogGroup:
     Type: AWS::Logs::LogGroup
@@ -357,7 +361,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 10
       Description: choosee-maps-api reverse geocode
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -385,6 +388,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 10
+      Tracing: Active
 
   GetReverseGeocodeLogGroup:
     Type: AWS::Logs::LogGroup
@@ -418,7 +423,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 60
       Description: choosee-maps-api post item
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -447,6 +451,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 60
+      Tracing: Active
 
   PostLogGroup:
     Type: AWS::Logs::LogGroup
@@ -480,7 +486,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 60
       Description: choosee-maps-api post advance items
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -506,6 +511,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 60
+      Tracing: Active
 
   PostAdvanceLogGroup:
     Type: AWS::Logs::LogGroup
@@ -539,7 +546,6 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 60
       Description: choosee-maps-api post prune items
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -561,6 +567,8 @@ Resources:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
         'environment': !Ref Environment
+      Timeout: 60
+      Tracing: Active
 
   PostPruneLogGroup:
     Type: AWS::Logs::LogGroup

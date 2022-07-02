@@ -9,6 +9,7 @@ import {
 
 import { GeocodeResponse, LatLng, PlaceDetails, PlaceDetailsResponse, PlaceResponse } from '../types'
 import { googleApiKey, googleImageCount, googleImageMaxHeight, googleImageMaxWidth, googleTimeoutMs } from '../config'
+import { xrayCaptureHttps } from '../utils/logging'
 
 const HIDDEN_TYPES = [
   PlaceType1.airport,
@@ -21,6 +22,7 @@ const HIDDEN_TYPES = [
   PlaceType1.zoo,
 ]
 
+xrayCaptureHttps()
 const client = new Client()
 
 /* Geocoding */
