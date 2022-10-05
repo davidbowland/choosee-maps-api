@@ -383,7 +383,7 @@ Resources:
             Path: /reverse-geocode
             Method: get
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: NONE
       Tags:
         'created-by': 'choosee-maps-api'
         'created-for': 'choosee'
