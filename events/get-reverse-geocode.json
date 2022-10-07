@@ -1,4 +1,7 @@
 {
+  "headers": {
+    "x-recaptcha-token": "ytrewsdfghjmnbgtyu"
+  },
   "queryStringParameters": {
     "lat": "38.897957",
     "lng": "-77.036560"

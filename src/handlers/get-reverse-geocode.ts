@@ -1,6 +1,7 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from '../types'
 import { log, logError } from '../utils/logging'
 import { fetchAddressFromGeocode } from '../services/google-maps'
+import { getScoreFromEvent } from '../services/recaptcha'
 import status from '../utils/status'
 
 const fetchLatLng = async (lat: number, lng: number): Promise<APIGatewayProxyResultV2<any>> => {
@@ -21,6 +22,13 @@ export const getReverseGeocodeHandler = async (
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2<any>> => {
   log('Received event', { ...event, body: undefined })
+
+  const score = await getScoreFromEvent(event)
+  log('reCAPTCHA result', { score })
+  if (score < 0.7) {
+    return status.FORBIDDEN
+  }
+
   const lat = parseFloat(event.queryStringParameters?.lat)
   const lng = parseFloat(event.queryStringParameters?.lng)
   if (isNaN(lat) || isNaN(lng)) {
