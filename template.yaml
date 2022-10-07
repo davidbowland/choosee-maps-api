@@ -16,6 +16,9 @@ Parameters:
   GoogleApiKey:
     Type: String
     Description: API key for Google Maps API
+  RecaptchaSecretKey:
+    Type: String
+    Description: Secret key for reCAPTCHA v3
 
 Mappings:
   EnvironmentMap:
@@ -89,6 +92,7 @@ Resources:
           - X-Amz-Date
           - X-Amz-Security-Token
           - X-Api-Key
+          - X-Recaptcha-Token
         AllowMethods:
           - DELETE
           - GET
@@ -367,6 +371,7 @@ Resources:
       Environment:
         Variables:
           GOOGLE_API_KEY: !Ref GoogleApiKey
+          RECAPTCHA_SECRET_KEY: !Ref RecaptchaSecretKey
       Events:
         ApiKey:
           Type: Api

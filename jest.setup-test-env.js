@@ -18,3 +18,7 @@ process.env.GOOGLE_IMAGE_MAX_WIDTH = '400'
 process.env.CHOICE_EXPIRE_HOURS = '30'
 process.env.ID_MIN_LENGTH = '3'
 process.env.ID_MAX_LENGTH = '4'
+
+// reCAPTCHA
+
+process.env.RECAPTCHA_SECRET_KEY = 'ertyuiknbghj'

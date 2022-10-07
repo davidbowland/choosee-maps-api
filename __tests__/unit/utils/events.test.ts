@@ -1,7 +1,8 @@
 import { APIGatewayProxyEventV2, NewChoice } from '@types'
-import { extractNewChoiceFromEvent, formatChoice } from '@utils/events'
+import { extractNewChoiceFromEvent, extractTokenFromEvent, formatChoice } from '@utils/events'
 import { newChoice } from '../__mocks__'
 import postEventJson from '@events/post-item.json'
+import reverseEventJson from '@events/get-reverse-geocode.json'
 
 describe('events', () => {
   describe('formatChoice', () => {
@@ -88,6 +89,14 @@ describe('events', () => {
       const tempEvent = { ...event, body: JSON.stringify(tempChoice) } as unknown as APIGatewayProxyEventV2
       const result = await extractNewChoiceFromEvent(tempEvent)
       expect(result).toEqual(expect.objectContaining(newChoice))
+    })
+  })
+
+  describe('extractTokenFromEvent', () => {
+    const event = reverseEventJson as unknown as APIGatewayProxyEventV2
+    test('expect token extracted from event', async () => {
+      const result = extractTokenFromEvent(event)
+      expect(result).toEqual('ytrewsdfghjmnbgtyu')
     })
   })
 })

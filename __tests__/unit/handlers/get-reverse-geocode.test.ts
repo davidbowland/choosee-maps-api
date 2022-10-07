@@ -1,6 +1,7 @@
 import { mocked } from 'jest-mock'
 
 import * as googleMaps from '@services/google-maps'
+import * as recaptcha from '@services/recaptcha'
 import { APIGatewayProxyEventV2 } from '@types'
 import eventJson from '@events/get-reverse-geocode.json'
 import { getReverseGeocodeHandler } from '@handlers/get-reverse-geocode'
@@ -8,6 +9,7 @@ import { reverseGeocodeResult } from '../__mocks__'
 import status from '@utils/status'
 
 jest.mock('@services/google-maps')
+jest.mock('@services/recaptcha')
 jest.mock('@utils/logging')
 
 describe('get-reverse-geocode', () => {
@@ -15,9 +17,16 @@ describe('get-reverse-geocode', () => {
 
   beforeAll(() => {
     mocked(googleMaps).fetchAddressFromGeocode.mockResolvedValue({ data: reverseGeocodeResult } as any)
+    mocked(recaptcha).getScoreFromEvent.mockResolvedValue(1)
   })
 
   describe('getReverseGeocodeHandler', () => {
+    test('expect FORBIDDEN when getScoreFromEvent is under threshold', async () => {
+      mocked(recaptcha).getScoreFromEvent.mockResolvedValueOnce(0)
+      const result = await getReverseGeocodeHandler(event)
+      expect(result).toEqual(status.FORBIDDEN)
+    })
+
     test('expect INTERNAL_SERVER_ERROR on fetchAddressFromGeocode reject', async () => {
       mocked(googleMaps).fetchAddressFromGeocode.mockRejectedValueOnce(undefined)
       const result = await getReverseGeocodeHandler(event)
