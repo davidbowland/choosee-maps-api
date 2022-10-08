@@ -2,9 +2,12 @@ import { mocked } from 'jest-mock'
 
 import * as googleMaps from '@services/google-maps'
 import * as recaptcha from '@services/recaptcha'
+import {
+  getReverseGeocodeHandlerAuthenticated,
+  getReverseGeocodeHandlerUnauthenticated,
+} from '@handlers/get-reverse-geocode'
 import { APIGatewayProxyEventV2 } from '@types'
 import eventJson from '@events/get-reverse-geocode.json'
-import { getReverseGeocodeHandler } from '@handlers/get-reverse-geocode'
 import { reverseGeocodeResult } from '../__mocks__'
 import status from '@utils/status'
 
@@ -20,28 +23,22 @@ describe('get-reverse-geocode', () => {
     mocked(recaptcha).getScoreFromEvent.mockResolvedValue(1)
   })
 
-  describe('getReverseGeocodeHandler', () => {
-    test('expect FORBIDDEN when getScoreFromEvent is under threshold', async () => {
-      mocked(recaptcha).getScoreFromEvent.mockResolvedValueOnce(0)
-      const result = await getReverseGeocodeHandler(event)
-      expect(result).toEqual(status.FORBIDDEN)
-    })
-
+  describe('getReverseGeocodeHandlerAuthenticated', () => {
     test('expect INTERNAL_SERVER_ERROR on fetchAddressFromGeocode reject', async () => {
       mocked(googleMaps).fetchAddressFromGeocode.mockRejectedValueOnce(undefined)
-      const result = await getReverseGeocodeHandler(event)
+      const result = await getReverseGeocodeHandlerAuthenticated(event)
       expect(result).toEqual(expect.objectContaining(status.INTERNAL_SERVER_ERROR))
     })
 
     test('expect NOT_FOUND on getDataById reject', async () => {
       mocked(googleMaps).fetchAddressFromGeocode.mockResolvedValueOnce({ data: { results: [] } } as any)
-      const result = await getReverseGeocodeHandler(event)
+      const result = await getReverseGeocodeHandlerAuthenticated(event)
       expect(result).toEqual(expect.objectContaining(status.NOT_FOUND))
     })
 
     test('expect BAD_REQUEST when query parameters missing', async () => {
       const tempEvent = { ...event, queryStringParameters: undefined }
-      const result = await getReverseGeocodeHandler(tempEvent)
+      const result = await getReverseGeocodeHandlerAuthenticated(tempEvent)
       expect(result).toEqual({
         ...status.BAD_REQUEST,
         body: '{"message":"lat and lng query parameters must be provided"}',
@@ -49,7 +46,29 @@ describe('get-reverse-geocode', () => {
     })
 
     test('expect OK when id exists', async () => {
-      const result = await getReverseGeocodeHandler(event)
+      const result = await getReverseGeocodeHandlerAuthenticated(event)
+      expect(result).toEqual({
+        ...status.OK,
+        body: JSON.stringify({ address: '1600 Pennsylvania Avenue NW, Washington, DC 20500, USA' }),
+      })
+    })
+  })
+
+  describe('getReverseGeocodeHandlerUnauthenticated', () => {
+    test('expect FORBIDDEN when getScoreFromEvent is under threshold', async () => {
+      mocked(recaptcha).getScoreFromEvent.mockResolvedValueOnce(0)
+      const result = await getReverseGeocodeHandlerUnauthenticated(event)
+      expect(result).toEqual(status.FORBIDDEN)
+    })
+
+    test('expect INTERNAL_SERVER_ERROR when getScoreFromEvent rejects', async () => {
+      mocked(recaptcha).getScoreFromEvent.mockRejectedValueOnce(undefined)
+      const result = await getReverseGeocodeHandlerUnauthenticated(event)
+      expect(result).toEqual(status.INTERNAL_SERVER_ERROR)
+    })
+
+    test('expect OK when id exists', async () => {
+      const result = await getReverseGeocodeHandlerUnauthenticated(event)
       expect(result).toEqual({
         ...status.OK,
         body: JSON.stringify({ address: '1600 Pennsylvania Avenue NW, Washington, DC 20500, USA' }),

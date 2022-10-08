@@ -359,7 +359,7 @@ Resources:
   GetReverseGeocodeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: handlers/get-reverse-geocode.getReverseGeocodeHandler
+      Handler: handlers/get-reverse-geocode.getReverseGeocodeHandlerUnauthenticated
       CodeUri: './dist'
       Runtime: nodejs16.x
       Architectures:
@@ -418,6 +418,69 @@ Resources:
         - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
       FilterPattern: '[timestamp, uuid, level="ERROR", message]'
       LogGroupName: !Ref GetReverseGeocodeLogGroup
+
+  GetReverseGeocodeAuthedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/get-reverse-geocode.getReverseGeocodeHandlerAuthenticated
+      CodeUri: './dist'
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Description: choosee-maps-api reverse geocode
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          GOOGLE_API_KEY: !Ref GoogleApiKey
+          RECAPTCHA_SECRET_KEY: !Ref RecaptchaSecretKey
+      Events:
+        ApiKey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /reverse-geocode/authed
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+        Http:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /reverse-geocode/authed
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+      Tags:
+        'created-by': 'choosee-maps-api'
+        'created-for': 'choosee'
+        'environment': !Ref Environment
+      Timeout: 10
+      Tracing: Active
+
+  GetReverseGeocodeAuthedLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: GetReverseGeocodeAuthedFunction
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetReverseGeocodeAuthedFunction}
+      RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'choosee-maps-api'
+        - Key: 'created-for'
+          Value: 'choosee'
+        - Key: 'environment'
+          Value: !Ref Environment
+
+  GetReverseGeocodeAuthedLogGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !Sub
+        - 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Function}'
+        - Function: !FindInMap [EnvironmentMap, !Ref Environment, logStreamFunction]
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref GetReverseGeocodeAuthedLogGroup
 
   PostItemFunction:
     Type: AWS::Serverless::Function
