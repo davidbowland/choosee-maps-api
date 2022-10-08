@@ -29,8 +29,8 @@ export const getReverseGeocodeHandler = async (
     return status.FORBIDDEN
   }
 
-  const lat = parseFloat(event.queryStringParameters?.lat)
-  const lng = parseFloat(event.queryStringParameters?.lng)
+  const lat = parseFloat(event.queryStringParameters?.lat as string)
+  const lng = parseFloat(event.queryStringParameters?.lng as string)
   if (isNaN(lat) || isNaN(lng)) {
     return { ...status.BAD_REQUEST, body: JSON.stringify({ message: 'lat and lng query parameters must be provided' }) }
   }

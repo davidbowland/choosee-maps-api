@@ -14,7 +14,7 @@ const fetchById = async (choiceId: string): Promise<APIGatewayProxyResultV2<any>
 
 export const getByIdHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2<any>> => {
   log('Received event', { ...event, body: undefined })
-  const choiceId = event.pathParameters.choiceId
+  const choiceId = event.pathParameters?.choiceId as string
   const result = await fetchById(choiceId)
   return result
 }

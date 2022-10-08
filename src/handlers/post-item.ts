@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Choice, LatLng, NewChoice } from '../types'
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Choice, LatLng, NewChoice, RankByType } from '../types'
 import { fetchGeocodeResults, fetchPlaceResults } from '../services/google-maps'
 import { log, logError } from '../utils/logging'
 import { extractNewChoiceFromEvent } from '../utils/events'
@@ -32,12 +32,12 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
     const places = await fetchPlaceResults(
       geocodedAddress.latLng,
       newChoice.type,
-      newChoice.openNow,
-      newChoice.pagesPerRound,
-      newChoice.rankBy,
+      newChoice.openNow as boolean,
+      newChoice.pagesPerRound as number,
+      newChoice.rankBy as string,
       newChoice.radius,
-      newChoice.maxPrice,
-      newChoice.minPrice
+      newChoice.maxPrice as number,
+      newChoice.minPrice as number
     )
     log('Google API results', JSON.stringify({ geocodedAddress, places }))
 
@@ -45,15 +45,15 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
     const choice: Choice = {
       address: geocodedAddress.address,
       choices: places.data,
-      expiration: newChoice.expiration,
+      expiration: newChoice.expiration as number,
       latLng: geocodedAddress.latLng,
-      maxPrice: newChoice.maxPrice,
-      minPrice: newChoice.minPrice,
+      maxPrice: newChoice.maxPrice as number,
+      minPrice: newChoice.minPrice as number,
       nextPageToken: places.nextPageToken,
-      openNow: newChoice.openNow,
-      pagesPerRound: newChoice.pagesPerRound,
+      openNow: newChoice.openNow as boolean,
+      pagesPerRound: newChoice.pagesPerRound as number,
       radius: newChoice.radius,
-      rankBy: newChoice.rankBy,
+      rankBy: newChoice.rankBy as RankByType,
       type: newChoice.type,
     }
     log('Creating choices', JSON.stringify({ choice, choiceId }))
@@ -73,7 +73,7 @@ export const postItemHandler = async (event: APIGatewayProxyEventV2): Promise<AP
   try {
     const newChoice = extractNewChoiceFromEvent(event)
     return await createNewChoice(newChoice)
-  } catch (error) {
+  } catch (error: any) {
     return { ...status.BAD_REQUEST, body: JSON.stringify({ message: error.message }) }
   }
 }

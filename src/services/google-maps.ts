@@ -93,7 +93,7 @@ const fetchPhotosFromDetails = (details: PlaceDetailsResponse): Promise<string[]
   )
 
 const compilePlaceResult = async (place: Place): Promise<PlaceDetails> => {
-  const details = await fetchPlaceDetails(place.place_id)
+  const details = await fetchPlaceDetails(place.place_id as string)
 
   return {
     formattedAddress: details.data.result.formatted_address,
@@ -102,7 +102,7 @@ const compilePlaceResult = async (place: Place): Promise<PlaceDetails> => {
     name: place.name,
     openHours: details.data.result.opening_hours?.weekday_text,
     photos: await fetchPhotosFromDetails(details),
-    placeId: place.place_id,
+    placeId: place.place_id as string,
     priceLevel: place.price_level,
     rating: place.rating,
     ratingsTotal: place.user_ratings_total,
@@ -113,7 +113,7 @@ const compilePlaceResult = async (place: Place): Promise<PlaceDetails> => {
 
 const processPlaceResults = async (places: Place[]): Promise<PlaceDetails[]> => {
   const [current, ...next] = places
-  if (HIDDEN_TYPES.every((badType) => current.types.indexOf(badType) === -1)) {
+  if (HIDDEN_TYPES.every((badType) => current.types?.indexOf(badType) === -1)) {
     const result = await compilePlaceResult(current)
     return next.length === 0 ? [result] : [result, ...(await processPlaceResults(next))]
   }
