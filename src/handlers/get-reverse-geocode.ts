@@ -21,14 +21,6 @@ const fetchLatLng = async (lat: number, lng: number): Promise<APIGatewayProxyRes
 export const getReverseGeocodeHandler = async (
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2<any>> => {
-  log('Received event', { ...event, body: undefined })
-
-  const score = await getScoreFromEvent(event)
-  log('reCAPTCHA result', { score })
-  if (score < 0.7) {
-    return status.FORBIDDEN
-  }
-
   const lat = parseFloat(event.queryStringParameters?.lat as string)
   const lng = parseFloat(event.queryStringParameters?.lng as string)
   if (isNaN(lat) || isNaN(lng)) {
@@ -36,4 +28,30 @@ export const getReverseGeocodeHandler = async (
   }
   const result = await fetchLatLng(lat, lng)
   return result
+}
+
+export const getReverseGeocodeHandlerAuthenticated = async (
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyResultV2<any>> => {
+  log('Received event', { ...event, body: undefined })
+
+  return await getReverseGeocodeHandler(event)
+}
+
+export const getReverseGeocodeHandlerUnauthenticated = async (
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyResultV2<any>> => {
+  log('Received event', { ...event, body: undefined })
+
+  try {
+    const score = await getScoreFromEvent(event)
+    log('reCAPTCHA result', { score })
+    if (score < 0.7) {
+      return status.FORBIDDEN
+    }
+  } catch (error) {
+    return status.INTERNAL_SERVER_ERROR
+  }
+
+  return await getReverseGeocodeHandler(event)
 }
