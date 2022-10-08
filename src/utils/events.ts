@@ -60,4 +60,5 @@ const parseEventBody = (event: APIGatewayProxyEventV2): unknown =>
 export const extractNewChoiceFromEvent = (event: APIGatewayProxyEventV2): NewChoice =>
   formatChoice(parseEventBody(event) as NewChoice)
 
-export const extractTokenFromEvent = (event: APIGatewayProxyEventV2): string => event.headers['x-recaptcha-token']
+export const extractTokenFromEvent = (event: APIGatewayProxyEventV2): string =>
+  event.headers['x-recaptcha-token'] as string

@@ -33,13 +33,16 @@ export const getDataById = (choiceId: string): Promise<Choice> =>
       TableName: dynamodbTableName,
     })
     .promise()
-    .then((response) => response.Item.Data.S)
+    .then((response: any) => response.Item.Data.S)
     .then(JSON.parse)
 
 /* Scan for all items */
 
 const getItemsFromScan = (response: DynamoDB.Types.ScanOutput): ChoiceBatch[] =>
-  response.Items.map((item) => ({ data: JSON.parse(item.Data.S), id: item.ChoiceId.S }))
+  response.Items?.map((item) => ({
+    data: JSON.parse(item.Data.S as string),
+    id: item.ChoiceId.S as string,
+  })) as ChoiceBatch[]
 
 export const scanData = (): Promise<ChoiceBatch[]> =>
   dynamodb
@@ -48,7 +51,7 @@ export const scanData = (): Promise<ChoiceBatch[]> =>
       TableName: dynamodbTableName,
     })
     .promise()
-    .then((response) => getItemsFromScan(response))
+    .then((response: any) => getItemsFromScan(response))
 
 /* Scan for expired items */
 
@@ -68,7 +71,7 @@ export const scanExpiredIds = (): Promise<any> =>
       TableName: dynamodbTableName,
     })
     .promise()
-    .then((response) => response.Items.map((item) => item.ChoiceId.S))
+    .then((response: any) => response.Items.map((item: any) => item.ChoiceId.S))
 
 /* Set item */
 

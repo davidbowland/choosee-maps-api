@@ -7,7 +7,7 @@ import status from '../utils/status'
 export const postAdvanceHandler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2<any>> => {
   log('Received event', { ...event, body: undefined })
   try {
-    const choiceId = event.pathParameters.choiceId
+    const choiceId = event.pathParameters?.choiceId as string
     const choice = await getDataById(choiceId)
 
     if (!choice.nextPageToken) {

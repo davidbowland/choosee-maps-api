@@ -10,20 +10,20 @@ export interface PlaceDetails {
   formattedAddress?: string
   formattedPhoneNumber?: string
   internationalPhoneNumber?: string
-  name: string
+  name?: string
   openHours?: string[]
   photos: string[]
   placeId: string
-  priceLevel: number
-  rating: number
+  priceLevel?: number
+  rating?: number
   ratingsTotal?: number
-  vicinity: string
+  vicinity?: string
   website?: string
 }
 
 export interface PlaceResponse {
   data: PlaceDetails[]
-  nextPageToken: string
+  nextPageToken?: string
 }
 
 export interface Choice {
@@ -33,7 +33,7 @@ export interface Choice {
   latLng: LatLng
   maxPrice: number
   minPrice: number
-  nextPageToken: string
+  nextPageToken?: string
   openNow: boolean
   pagesPerRound: number
   radius?: number
