@@ -1,4 +1,13 @@
-import { DynamoDB } from 'aws-sdk'
+import {
+  DeleteItemCommand,
+  DeleteItemOutput,
+  DynamoDB,
+  GetItemCommand,
+  PutItemCommand,
+  PutItemOutput,
+  ScanCommand,
+  ScanOutput,
+} from '@aws-sdk/client-dynamodb'
 
 import { Choice, ChoiceBatch } from '../types'
 import { dynamodbTableName } from '../config'
@@ -8,87 +17,86 @@ const dynamodb = xrayCapture(new DynamoDB({ apiVersion: '2012-08-10' }))
 
 /* Delete item */
 
-export const deleteDataById = (choiceId: string): Promise<DynamoDB.Types.DeleteItemOutput> =>
-  dynamodb
-    .deleteItem({
-      Key: {
-        ChoiceId: {
-          S: `${choiceId}`,
-        },
+export const deleteDataById = async (choiceId: string): Promise<DeleteItemOutput> => {
+  const command = new DeleteItemCommand({
+    Key: {
+      ChoiceId: {
+        S: `${choiceId}`,
       },
-      TableName: dynamodbTableName,
-    })
-    .promise()
+    },
+    TableName: dynamodbTableName,
+  })
+  return dynamodb.send(command)
+}
 
 /* Get single item */
 
-export const getDataById = (choiceId: string): Promise<Choice> =>
-  dynamodb
-    .getItem({
-      Key: {
-        ChoiceId: {
-          S: `${choiceId}`,
-        },
+export const getDataById = async (choiceId: string): Promise<Choice> => {
+  const command = new GetItemCommand({
+    Key: {
+      ChoiceId: {
+        S: `${choiceId}`,
       },
-      TableName: dynamodbTableName,
-    })
-    .promise()
-    .then((response: any) => response.Item.Data.S)
-    .then(JSON.parse)
+    },
+    TableName: dynamodbTableName,
+  })
+  const response = await dynamodb.send(command)
+  return JSON.parse(response.Item.Data.S)
+}
 
 /* Scan for all items */
 
-const getItemsFromScan = (response: DynamoDB.Types.ScanOutput): ChoiceBatch[] =>
+const getItemsFromScan = (response: ScanOutput): ChoiceBatch[] =>
   response.Items?.map((item) => ({
     data: JSON.parse(item.Data.S as string),
     id: item.ChoiceId.S as string,
   })) as ChoiceBatch[]
 
-export const scanData = (): Promise<ChoiceBatch[]> =>
-  dynamodb
-    .scan({
-      AttributesToGet: ['Data', 'ChoiceId', 'Expiration'],
-      TableName: dynamodbTableName,
-    })
-    .promise()
-    .then((response: any) => getItemsFromScan(response))
+export const scanData = async (): Promise<ChoiceBatch[]> => {
+  const command = new ScanCommand({
+    AttributesToGet: ['Data', 'ChoiceId', 'Expiration'],
+    TableName: dynamodbTableName,
+  })
+  const response = await dynamodb.send(command)
+  return getItemsFromScan(response)
+}
 
 /* Scan for expired items */
 
-export const scanExpiredIds = (): Promise<any> =>
-  dynamodb
-    .scan({
-      ExpressionAttributeValues: {
-        ':v1': {
-          N: '1',
-        },
-        ':v2': {
-          N: `${new Date().getTime()}`,
-        },
+export const scanExpiredIds = async (): Promise<any> => {
+  const command = new ScanCommand({
+    ExpressionAttributeValues: {
+      ':v1': {
+        N: '1',
       },
-      FilterExpression: 'Expiration BETWEEN :v1 AND :v2',
-      IndexName: 'ExpirationIndex',
-      TableName: dynamodbTableName,
-    })
-    .promise()
-    .then((response: any) => response.Items.map((item: any) => item.ChoiceId.S))
+      ':v2': {
+        N: `${new Date().getTime()}`,
+      },
+    },
+    FilterExpression: 'Expiration BETWEEN :v1 AND :v2',
+    IndexName: 'ExpirationIndex',
+    TableName: dynamodbTableName,
+  })
+  const response = await dynamodb.send(command)
+  return response.Items.map((item: any) => item.ChoiceId.S)
+}
 
 /* Set item */
 
-export const setDataById = (choiceId: string, choice: Choice): Promise<DynamoDB.Types.PutItemOutput> =>
-  dynamodb
-    .putItem({
-      Item: {
-        ChoiceId: {
-          S: `${choiceId}`,
-        },
-        Data: {
-          S: JSON.stringify(choice),
-        },
-        Expiration: {
-          N: `${choice.expiration ?? 0}`,
-        },
+export const setDataById = async (choiceId: string, choice: Choice): Promise<PutItemOutput> => {
+  const command = new PutItemCommand({
+    Item: {
+      ChoiceId: {
+        S: `${choiceId}`,
       },
-      TableName: dynamodbTableName,
-    })
-    .promise()
+      Data: {
+        S: JSON.stringify(choice),
+      },
+      Expiration: {
+        N: `${choice.expiration ?? 0}`,
+      },
+    },
+    TableName: dynamodbTableName,
+  })
+  return dynamodb.send(command)
+}
