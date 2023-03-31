@@ -2,8 +2,8 @@ import {
   AddressType,
   Client,
   Place,
-  PlaceType1,
   PlacesNearbyRanking,
+  PlaceType1,
   ReverseGeocodeResponse,
 } from '@googlemaps/google-maps-services-js'
 

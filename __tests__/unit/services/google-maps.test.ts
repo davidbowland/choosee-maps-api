@@ -32,13 +32,13 @@ jest.mock('@googlemaps/google-maps-services-js', () => ({
     placesNearby: (...args) => mockPlacesNearby(...args),
     reverseGeocode: (...args) => mockReverseGeocode(...args),
   }),
-  PlaceType1: {
-    convenience_store: 'convenience_store',
-    gas_station: 'gas_station',
-  },
   PlacesNearbyRanking: {
     distance: 'distance',
     prominence: 'prominence',
+  },
+  PlaceType1: {
+    convenience_store: 'convenience_store',
+    gas_station: 'gas_station',
   },
 }))
 
