@@ -134,7 +134,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1024
       Description: choosee-maps-api delete by ID
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -190,7 +190,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 512
       Description: choosee-maps-api get all items
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -246,7 +246,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 2048
       Description: choosee-maps-api get by ID
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -310,7 +310,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1024
       Description: choosee-maps-api get place details by ID
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -364,7 +364,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1024
       Description: choosee-maps-api reverse geocode
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -427,7 +427,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1024
       Description: choosee-maps-api reverse geocode
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -490,7 +490,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1536
       Description: choosee-maps-api post item
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -553,7 +553,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1536
       Description: choosee-maps-api post advance items
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -613,7 +613,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1536
       Description: choosee-maps-api post prune items
       Policies:
         - AWSLambdaBasicExecutionRole
