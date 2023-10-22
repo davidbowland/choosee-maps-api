@@ -23,7 +23,7 @@ describe('twitch', () => {
         const secret = req.url.searchParams.get('secret')
         const body = postSiteVerify(response, secret)
         return res(body ? ctx.json(body) : ctx.status(400))
-      })
+      }),
     )
   })
 

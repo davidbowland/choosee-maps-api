@@ -17,7 +17,7 @@ export const getCaptchaScore = async (token: string): Promise<number> =>
           response: token,
           secret: process.env.RECAPTCHA_SECRET_KEY,
         },
-      }
+      },
     )
     .then((response) => response.data.score)
 

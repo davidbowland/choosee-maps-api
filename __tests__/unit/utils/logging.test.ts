@@ -28,7 +28,7 @@ describe('logging', () => {
 
         await log(message)
         expect(console.log).toHaveBeenCalledWith(message)
-      }
+      },
     )
   })
 
@@ -41,7 +41,7 @@ describe('logging', () => {
 
         await logError(error)
         expect(console.error).toHaveBeenCalledWith(error)
-      }
+      },
     )
   })
 

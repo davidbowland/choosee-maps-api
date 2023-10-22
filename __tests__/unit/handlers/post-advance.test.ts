@@ -45,7 +45,7 @@ describe('post-advance', () => {
         50_000,
         4,
         2,
-        choice.nextPageToken
+        choice.nextPageToken,
       )
     })
 

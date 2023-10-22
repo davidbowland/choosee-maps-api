@@ -19,7 +19,7 @@ const fetchLatLng = async (lat: number, lng: number): Promise<APIGatewayProxyRes
 }
 
 export const getReverseGeocodeHandler = async (
-  event: APIGatewayProxyEventV2
+  event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2<any>> => {
   const lat = parseFloat(event.queryStringParameters?.lat as string)
   const lng = parseFloat(event.queryStringParameters?.lng as string)
@@ -31,7 +31,7 @@ export const getReverseGeocodeHandler = async (
 }
 
 export const getReverseGeocodeHandlerAuthenticated = async (
-  event: APIGatewayProxyEventV2
+  event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2<any>> => {
   log('Received event', { ...event, body: undefined })
 
@@ -39,7 +39,7 @@ export const getReverseGeocodeHandlerAuthenticated = async (
 }
 
 export const getReverseGeocodeHandlerUnauthenticated = async (
-  event: APIGatewayProxyEventV2
+  event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2<any>> => {
   log('Received event', { ...event, body: undefined })
 

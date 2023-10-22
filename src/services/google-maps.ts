@@ -89,7 +89,7 @@ export const fetchPlaceDetails = (placeId: string): Promise<PlaceDetailsResponse
 
 const fetchPhotosFromDetails = (details: PlaceDetailsResponse): Promise<string[]> =>
   Promise.all(
-    details.data.result.photos?.slice(0, googleImageCount).map((value) => fetchPicture(value.photo_reference)) ?? []
+    details.data.result.photos?.slice(0, googleImageCount).map((value) => fetchPicture(value.photo_reference)) ?? [],
   )
 
 const compilePlaceResult = async (place: Place): Promise<PlaceDetails> => {
@@ -129,7 +129,7 @@ export const fetchPlaceResults = async (
   radius?: number,
   maxPrice?: number,
   minPrice?: number,
-  nextPageToken?: string
+  nextPageToken?: string,
 ): Promise<PlaceResponse> => {
   const response = await client.placesNearby({
     params: {
@@ -163,7 +163,7 @@ export const fetchPlaceResults = async (
     radius,
     maxPrice,
     minPrice,
-    result.nextPageToken
+    result.nextPageToken,
   )
   return { data: [...result.data, ...otherPages.data], nextPageToken: otherPages.nextPageToken }
 }

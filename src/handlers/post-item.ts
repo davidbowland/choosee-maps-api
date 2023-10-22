@@ -37,7 +37,7 @@ const createNewChoice = async (newChoice: NewChoice): Promise<APIGatewayProxyRes
       newChoice.rankBy as string,
       newChoice.radius,
       newChoice.maxPrice as number,
-      newChoice.minPrice as number
+      newChoice.minPrice as number,
     )
     log('Google API results', JSON.stringify({ geocodedAddress, places }))
 

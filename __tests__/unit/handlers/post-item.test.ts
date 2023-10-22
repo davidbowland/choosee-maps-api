@@ -63,7 +63,7 @@ describe('post-item', () => {
         'distance',
         undefined,
         4,
-        2
+        2,
       )
     })
 
@@ -79,7 +79,7 @@ describe('post-item', () => {
       } as unknown as GeocodeResponse)
       const result = await postItemHandler(event)
       expect(result).toEqual(
-        expect.objectContaining({ ...status.BAD_REQUEST, body: JSON.stringify({ message: 'Invalid address' }) })
+        expect.objectContaining({ ...status.BAD_REQUEST, body: JSON.stringify({ message: 'Invalid address' }) }),
       )
     })
 
@@ -105,7 +105,7 @@ describe('post-item', () => {
         'prominence',
         50_000,
         4,
-        2
+        2,
       )
       expect(JSON.parse(result.body)).toEqual({
         ...choice,

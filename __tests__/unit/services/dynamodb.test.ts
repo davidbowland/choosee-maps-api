@@ -34,7 +34,7 @@ describe('dynamodb', () => {
             },
           },
           TableName: 'choosee-table',
-        })
+        }),
       )
     })
   })
@@ -55,7 +55,7 @@ describe('dynamodb', () => {
             },
           },
           TableName: 'choosee-table',
-        })
+        }),
       )
       expect(result).toEqual(choice)
     })
@@ -73,7 +73,7 @@ describe('dynamodb', () => {
         expect.objectContaining({
           AttributesToGet: ['Data', 'ChoiceId', 'Expiration'],
           TableName: 'choosee-table',
-        })
+        }),
       )
       expect(result).toEqual([{ data: choice, id: choiceId }])
     })
@@ -100,7 +100,7 @@ describe('dynamodb', () => {
           FilterExpression: 'Expiration BETWEEN :v1 AND :v2',
           IndexName: 'ExpirationIndex',
           TableName: 'choosee-table',
-        })
+        }),
       )
       expect(result).toEqual([choiceId])
     })
@@ -124,7 +124,7 @@ describe('dynamodb', () => {
             },
           },
           TableName: 'choosee-table',
-        })
+        }),
       )
     })
 
@@ -146,7 +146,7 @@ describe('dynamodb', () => {
             },
           },
           TableName: 'choosee-table',
-        })
+        }),
       )
     })
   })

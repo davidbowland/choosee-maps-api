@@ -23,7 +23,7 @@ export const postAdvanceHandler = async (event: APIGatewayProxyEventV2): Promise
       choice.radius,
       choice.maxPrice,
       choice.minPrice,
-      choice.nextPageToken
+      choice.nextPageToken,
     )
     const updatedChoice = { ...choice, choices: places.data, nextPageToken: places.nextPageToken }
     log('Updating choice', { choiceId, updatedChoice })
