@@ -4,7 +4,7 @@
   "description": "Lambda choosee maps API",
   "author": "David Bowland",
   "engines": {
-    "node": "^18.0.0"
+    "node": "^20.0.0"
   },
   "license": "ISC",
   "repository": {
@@ -16,11 +16,11 @@
   },
   "homepage": "https://github.com/davidbowland/choosee-maps-api#readme",
   "scripts": {
-    "build": "npm run clean && tsc && cp package*.json dist/ && cd dist/ && HUSKY=0 NODE_ENV=production npm ci",
+    "build": "npm run clean && tsc && cp package*.json dist/ && cd dist/ && NODE_ENV=production npm ci",
     "clean": "rm -rf .aws-sam dist coverage && NODE_ENV=test npm ci",
     "deploy": "npm run build && ./scripts/deploy.sh",
-    "lint": "prettier --write . && eslint --fix . --resolve-plugins-relative-to .",
-    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install ; fi",
+    "lint": "prettier --write . && eslint --fix .",
+    "prepare": "husky install",
     "start": "npm run build && npm run quick-start",
     "quick-start": "tsc && ./scripts/runLocal.sh",
     "test": "jest --colors",
@@ -57,7 +57,7 @@
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
       "prettier --write --ignore-unknown",
-      "eslint --resolve-plugins-relative-to . --fix",
+      "eslint --fix",
       "jest --colors --findRelatedTests --coverageThreshold '{}' --passWithNoTests"
     ],
     "**/*": [
