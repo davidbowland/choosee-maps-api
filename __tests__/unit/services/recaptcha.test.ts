@@ -2,7 +2,7 @@ import { mocked } from 'jest-mock'
 
 import * as events from '@utils/events'
 import { getCaptchaScore, getScoreFromEvent } from '@services/recaptcha'
-import { rest, server } from '@setup-server'
+import { http, HttpResponse, server } from '@setup-server'
 import { APIGatewayProxyEventV2 } from '@types'
 import eventJson from '@events/get-reverse-geocode.json'
 import { recaptchaToken } from '../__mocks__'
@@ -18,11 +18,12 @@ describe('twitch', () => {
     mocked(events).extractTokenFromEvent.mockReturnValue(recaptchaToken)
 
     server.use(
-      rest.post('https://www.google.com/recaptcha/api/siteverify', async (req, res, ctx) => {
-        const response = req.url.searchParams.get('response')
-        const secret = req.url.searchParams.get('secret')
+      http.post('https://www.google.com/recaptcha/api/siteverify', async ({ request }) => {
+        const url = new URL(request.url)
+        const response = url.searchParams.get('response')
+        const secret = url.searchParams.get('secret')
         const body = postSiteVerify(response, secret)
-        return res(body ? ctx.json(body) : ctx.status(400))
+        return body ? HttpResponse.json(body) : new HttpResponse(null, { status: 400 })
       }),
     )
   })
