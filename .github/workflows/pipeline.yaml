@@ -1,22 +1,23 @@
 name: Pipeline
 
 env:
+  GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
   GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+  HUSKY: 0
   PIPELINE_USER_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   PIPELINE_USER_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  PROD_ARTIFACTS_BUCKET: choosee-lambda
+  PROD_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-cloudformation
+  PROD_PIPELINE_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-pipeline
+  PROD_REGION: ${{ secrets.AWS_REGION }}
+  PROD_STACK_NAME: choosee-maps-api
   RECAPTCHA_SECRET_KEY: ${{ secrets.RECAPTCHA_SECRET_KEY }}
   SAM_TEMPLATE: template.yaml
-  TESTING_STACK_NAME: choosee-maps-api-test
-  TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-pipeline-test
-  TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-cloudformation-test
   TESTING_ARTIFACTS_BUCKET: choosee-lambda-test
+  TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-cloudformation-test
+  TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-pipeline-test
   TESTING_REGION: ${{ secrets.AWS_REGION }}
-  PROD_STACK_NAME: choosee-maps-api
-  PROD_PIPELINE_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-pipeline
-  PROD_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/choosee-cloudformation
-  PROD_ARTIFACTS_BUCKET: choosee-lambda
-  PROD_REGION: ${{ secrets.AWS_REGION }}
-  HUSKY: 0
+  TESTING_STACK_NAME: choosee-maps-api-test
 
 on: push
 
@@ -252,7 +253,7 @@ jobs:
           node-version: 20.x
       - name: Set git name and email
         run: |
-          git config --local user.email "dbowland1+bot@gmail.com"
+          git config --local user.email "${GIT_EMAIL}"
           git config --local user.name "github-actions[bot]"
       - name: Bump the minor version
         run: npm version minor
